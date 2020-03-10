@@ -458,8 +458,8 @@ typedef NS_ENUM(NSInteger, FBSDKLoginManagerState) {
 {
   [_logger willAttemptAppSwitchingBehavior];
 
-  FBSDKServerConfiguration *configuration = [FBSDKServerConfigurationManager cachedServerConfiguration];
-  BOOL useSafariViewController = [configuration useSafariViewControllerForDialogName:FBSDKDialogConfigurationNameLogin];
+  //FBSDKServerConfiguration *configuration = [FBSDKServerConfigurationManager cachedServerConfiguration];
+  BOOL useSafariViewController = false;//[configuration useSafariViewControllerForDialogName:FBSDKDialogConfigurationNameLogin];
   NSString *authMethod = (useSafariViewController ? FBSDKLoginManagerLoggerAuthMethod_SFVC : FBSDKLoginManagerLoggerAuthMethod_Browser);
 
   loginParams = [_logger parametersWithTimeStampAndClientState:loginParams forAuthMethod:authMethod];
