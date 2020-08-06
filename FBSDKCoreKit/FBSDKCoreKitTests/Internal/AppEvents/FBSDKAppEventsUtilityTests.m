@@ -48,8 +48,10 @@
 
 - (void)tearDown
 {
-  // Put teardown code here. This method is called after the invocation of each test method in the class.
   [super tearDown];
+
+  [_mockNSLocale stopMocking];
+  [_mockAppEventsUtility stopMocking];
 }
 
 - (void)testLogNotification
@@ -74,33 +76,25 @@
 - (void)testParamsDictionary
 {
   NSDictionary *dict = [FBSDKAppEventsUtility activityParametersDictionaryForEvent:@"event"
-                                                                implicitEventsOnly:NO
                                                          shouldAccessAdvertisingID:YES];
   XCTAssertEqualObjects(@"event", dict[@"event"]);
   XCTAssertNotNil(dict[@"advertiser_id"]);
   XCTAssertEqualObjects(@"1", dict[@"application_tracking_enabled"]);
   XCTAssertEqualObjects(@"test-user-id", dict[@"app_user_id"]);
-}
-
-
-- (void)testParamsDictionary2
-{
-  [FBSDKSettings setLimitEventAndDataUsage:NO];
-  NSDictionary *dict = [FBSDKAppEventsUtility activityParametersDictionaryForEvent:@"event"
-                                                                implicitEventsOnly:YES
-                                                         shouldAccessAdvertisingID:YES];
-  XCTAssertEqualObjects(@"event", dict[@"event"]);
-  XCTAssertNil(dict[@"advertiser_id"]);
-  XCTAssertEqualObjects(@"1", dict[@"application_tracking_enabled"]);
 
   [FBSDKSettings setLimitEventAndDataUsage:YES];
   dict = [FBSDKAppEventsUtility activityParametersDictionaryForEvent:@"event2"
-                                                  implicitEventsOnly:NO
                                            shouldAccessAdvertisingID:NO];
   XCTAssertEqualObjects(@"event2", dict[@"event"]);
   XCTAssertNil(dict[@"advertiser_id"]);
   XCTAssertEqualObjects(@"0", dict[@"application_tracking_enabled"]);
+
   [FBSDKSettings setLimitEventAndDataUsage:NO];
+  dict = [FBSDKAppEventsUtility activityParametersDictionaryForEvent:@"event"
+                                           shouldAccessAdvertisingID:YES];
+  XCTAssertEqualObjects(@"event", dict[@"event"]);
+  XCTAssertNotNil(dict[@"advertiser_id"]);
+  XCTAssertEqualObjects(@"1", dict[@"application_tracking_enabled"]);
 }
 
 - (void)testLogImplicitEventsExists
@@ -118,16 +112,17 @@
   XCTAssertTrue([str isEqualToString:@"1234.56"]);
 }
 
+#if BUCK
 - (void)testGetNumberValueWithLocaleFR
 {
-  OCMStub([_mockNSLocale currentLocale]).
-  _andReturn(OCMOCK_VALUE([NSLocale localeWithLocaleIdentifier:@"fr"]));
+  OCMStub(ClassMethod([_mockNSLocale currentLocale])).andReturn([NSLocale localeWithLocaleIdentifier:@"fr"]);
 
   NSNumber *result = [FBSDKAppEventsUtility
                       getNumberValue:@"Price: 1\u202F234,56; Buy 1 get 2!"];
   NSString *str = [NSString stringWithFormat:@"%.2f", result.floatValue];
   XCTAssertEqualObjects(str, @"1234.56");
 }
+#endif
 
 - (void)testGetNumberValueWithLocaleIT
 {

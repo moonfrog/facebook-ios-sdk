@@ -64,14 +64,12 @@ main() {
       "$GAMING_SERVICES_KIT"
       "FBSDKMarketingKit"
       "FBSDKTVOSKit"
-      "AccountKit"
     )
 
     SDK_VERSION_FILES=(
       "Configurations/Version.xcconfig"
       "FBSDKCoreKit/FBSDKCoreKit/FBSDKCoreKit.h"
       "FBSDKCoreKit/FBSDKCoreKit/Basics/Instrument/FBSDKCrashHandler.m"
-      "AccountKit/AccountKit/Internal/AKFConstants.m"
     )
 
     SDK_GRAPH_API_VERSION_FILES=(
@@ -85,7 +83,6 @@ main() {
 
     SDK_POD_SPECS=("${SDK_KITS[@]}" "$SDK_FRAMEWORK_NAME")
     SDK_POD_SPECS=("${SDK_POD_SPECS[@]/%/.podspec}")
-    SDK_POD_SPECS[6]="AccountKit/${SDK_POD_SPECS[6]}"
 
     SDK_LINT_POD_SPECS=(
       "FBSDKCoreKit.podspec"
@@ -314,32 +311,48 @@ build_sdk() {
 
   build_spm() {
     for scheme in "${SWIFT_PACKAGE_SCHEMES[@]}"; do
+
+    echo "Building Swift Package - $scheme"
+
+    # Redirecting to /dev/null because we only care about errors here and the full output drowns Travis
+    # The echo before building the scheme should be enough to keep travis from timing out for lack of
+    # visible output
     xcodebuild clean build \
       -workspace .swiftpm/xcode/package.xcworkspace \
       -scheme "$scheme" \
       -sdk iphonesimulator \
-      OTHER_SWIFT_FLAGS="-D SWIFT_PACKAGE"
+      OTHER_SWIFT_FLAGS="-D SWIFT_PACKAGE" > /dev/null
     done
   }
 
   build_spm_integration() {
+    set +u # Don't fail on undefined variables
+
+    local branch
+
+    if [ -n "$TRAVIS_PULL_REQUEST" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+      branch="refs/pull/$TRAVIS_PULL_REQUEST/merge";
+    elif [ -n "$TRAVIS_BRANCH" ]; then
+      branch="$TRAVIS_BRANCH";
+    else
+      branch="master"
+    fi
+    echo "Using travis branch: $branch"
+
     cd "$SDK_DIR"/samples/SmoketestSPM
 
+    echo "Updating project file to point to merge commit at: $branch"
     /usr/libexec/PlistBuddy \
-      -c "delete :objects:F4CEA53E23C29C9E0086EB16:requirement:branch" \
-      SmoketestSPM.xcodeproj/project.pbxproj
+        -c "set :objects:F4CEA53E23C29C9E0086EB16:requirement:branch $branch" \
+        SmoketestSPM.xcodeproj/project.pbxproj
 
-    /usr/libexec/PlistBuddy \
-      -c "add :objects:F4CEA53E23C29C9E0086EB16:requirement:revision string $TRAVIS_COMMIT" \
-      SmoketestSPM.xcodeproj/project.pbxproj
-
-    /usr/libexec/PlistBuddy \
-      -c "set :objects:F4CEA53E23C29C9E0086EB16:requirement:kind revision" \
-      SmoketestSPM.xcodeproj/project.pbxproj
-
+    # Redirecting to /dev/null because we only care about errors here and the full output drowns Travis
+    # The echo before building the scheme should be enough to keep travis from timing out for lack of
+    # visible output
     xcodebuild build -scheme SmoketestSPM \
-      -sdk iphonesimulator \
-      -verbose
+      -sdk iphonesimulator > /dev/null
+
+    set -u # Resume failing on undefined variables
   }
 
   local build_type=${1:-}
@@ -377,6 +390,10 @@ lint_sdk() {
 
       if [ "$spec" == FBSDKTVOSKit.podspec ]; then
         dependent_spec="--include-podspecs=FBSDK{Core,Share,Login}Kit.podspec"
+      fi
+
+      if [ "$spec" == FBSDKGamingServicesKit.podspec ]; then
+        dependent_spec="--include-podspecs=FBSDK{Core,Share}Kit.podspec"
       fi
 
       echo ""
@@ -562,17 +579,13 @@ release_sdk() {
 
   # Release Cocoapods
   release_cocoapods() {
-    for spec in "${SDK_POD_SPECS[@]}"; do
-      if [ ! -f "$spec" ]; then
+    for spec in "$@"; do
+      if [ ! -f "$spec".podspec ]; then
         echo "*** ERROR: unable to release $spec"
         continue
       fi
 
-      set +e
-
-      pod trunk push --allow-warnings "$spec" "$@"
-
-      set -e
+      pod trunk push --allow-warnings "$spec".podspec || { echo "Failed to push $spec"; exit 1; }
     done
   }
 

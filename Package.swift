@@ -58,7 +58,7 @@ let package = Package(
                 .headerSearchPath("AppEvents/Internal/Codeless"),
                 .headerSearchPath("AppEvents/Internal/ViewHierarchy/"),
                 .headerSearchPath("AppEvents/Internal/ML"),
-                .headerSearchPath("AppEvents/Internal/RestrictiveDataFilter"),
+                .headerSearchPath("AppEvents/Internal/Integrity"),
                 .headerSearchPath("AppEvents/Internal/EventDeactivation"),
                 .headerSearchPath("AppEvents/Internal/SuggestedEvents"),
                 .headerSearchPath("AppLink"),
@@ -76,6 +76,7 @@ let package = Package(
                 .headerSearchPath("Internal/Instrument"),
                 .headerSearchPath("Internal/Instrument/CrashReport"),
                 .headerSearchPath("Internal/Instrument/ErrorReport"),
+                .headerSearchPath("Internal/Monitoring"),
                 .headerSearchPath("Internal/Network"),
                 .headerSearchPath("Internal/ServerConfiguration"),
                 .headerSearchPath("Internal/TokenCaching"),
@@ -98,6 +99,7 @@ let package = Package(
             cSettings: [
                 .headerSearchPath("Internal"),
                 .headerSearchPath("../../FBSDKCoreKit/FBSDKCoreKit/Internal"),
+                .define("FBSDK_SWIFT_PACKAGE", to: nil, .when(platforms: [.iOS], configuration: nil)),
             ]
         ),
         .target(
@@ -113,6 +115,7 @@ let package = Package(
             cSettings: [
                 .headerSearchPath("Internal"),
                 .headerSearchPath("../../FBSDKCoreKit/FBSDKCoreKit/Internal"),
+                .define("FBSDK_SWIFT_PACKAGE", to: nil, .when(platforms: [.iOS], configuration: nil)),
             ]
         ),
         .target(
@@ -128,6 +131,7 @@ let package = Package(
             cSettings: [
                 .headerSearchPath("Internal"),
                 .headerSearchPath("../../FBSDKCoreKit/FBSDKCoreKit/Internal"),
+                .headerSearchPath("../../FBSDKShareKit/FBSDKShareKit/Internal"),
             ]
         ),
         .target(
@@ -135,5 +139,6 @@ let package = Package(
             dependencies: ["FacebookCore", "FBSDKGamingServicesKit"],
             path: "FBSDKGamingServicesKit/FBSDKGamingServicesKit/Swift"
         ),
-    ]
+    ],
+    cxxLanguageStandard: CXXLanguageStandard.cxx11
 )

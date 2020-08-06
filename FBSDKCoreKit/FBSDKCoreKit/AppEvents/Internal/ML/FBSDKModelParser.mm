@@ -20,18 +20,19 @@
 
 #if !TARGET_OS_TV
 
+#import "FBSDKMLMacros.h"
 #import "FBSDKModelParser.h"
-#import "FBSDKModelConstants.h"
-using mat::MTensor;
-using std::string;
-using std::unordered_map;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FBSDKModelParser
 
-+ (unordered_map<string, MTensor>)parseWeightsData:(NSData *)weightsData {
-  unordered_map<string,  MTensor> weights;
++ (std::unordered_map<std::string, fbsdk::MTensor>)parseWeightsData:(NSData *)weightsData
+{
+  std::unordered_map<std::string, fbsdk::MTensor> weights;
+  if (!weightsData) {
+    return weights;
+  }
 
   const void *data = weightsData.bytes;
   NSUInteger totalLength =  weightsData.length;
@@ -58,15 +59,16 @@ NS_ASSUME_NONNULL_BEGIN
 
     int totalFloats = 0;
     float *floats = (float *)(json + length);
+    NSDictionary<NSString *, NSString *> *keysMapping = [self getKeysMapping];
     for (NSString *key in keys) {
       NSString *finalKey = key;
-      NSString *mapping = [KEYS_MAPPING objectForKey:key];
+      NSString *mapping = [keysMapping objectForKey:key];
       if (mapping) {
         finalKey = mapping;
       }
       std::string s_name([finalKey UTF8String]);
 
-      std::vector<int64_t> v_shape;
+      std::vector<int> v_shape;
       NSArray<NSString *> *shape = [info objectForKey:key];
       int count = 1;
       for (NSNumber *_s in shape) {
@@ -81,9 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
         // Make sure data length is valid
         break;
       }
-      MTensor tensor = mat::mempty(v_shape);
-      float *tensor_data = tensor.data<float>();
-      memcpy(tensor_data, floats, sizeof(float) * count);
+      fbsdk::MTensor tensor(v_shape);
+      memcpy(tensor.mutable_data(), floats, sizeof(float) * count);
       floats += count;
 
       weights[s_name] = tensor;
@@ -93,30 +94,52 @@ NS_ASSUME_NONNULL_BEGIN
   return weights;
 }
 
-+ (bool)validateWeights:(std::unordered_map<std::string, mat::MTensor>)weights forTask:(FBSDKMTMLTask)task {
++ (bool)validateWeights:(std::unordered_map<std::string, fbsdk::MTensor>)weights forKey:(NSString *)key
+{
   NSMutableDictionary<NSString *, NSArray *> *weightsInfoDict = [[NSMutableDictionary alloc] init];
-  [weightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  switch (task) {
-    case FBSDKMTMLTaskAddressDetect:
-      [weightsInfoDict addEntriesFromDictionary:AddressDetectSpec];
-      break;
-    case FBSDKMTMLTaskAppEventPred:
-      [weightsInfoDict addEntriesFromDictionary:AppEventPredSpec];
-      break;
+  if ([key hasPrefix:MTMLKey]) {
+    [weightsInfoDict addEntriesFromDictionary:[self getMTMLWeightsInfo]];
   }
-
-  return [self _checkWeights:weights withExpectedInfo:weightsInfoDict];
+  return [self checkWeights:weights withExpectedInfo:weightsInfoDict];
 }
 
-+ (bool)validateMTMLWeights:(std::unordered_map<std::string, mat::MTensor>)weights {
-    NSMutableDictionary<NSString *, NSArray *> *weightsInfoDict = [[NSMutableDictionary alloc] init];
-  [weightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  [weightsInfoDict addEntriesFromDictionary:MTMLSpec];
-  return [self _checkWeights:weights withExpectedInfo:weightsInfoDict];
+#pragma mark - private methods
+
++ (NSDictionary<NSString *, NSString *> *)getKeysMapping
+{
+  return @{
+    @"embedding.weight": @"embed.weight",
+    @"dense1.weight": @"fc1.weight",
+    @"dense2.weight": @"fc2.weight",
+    @"dense3.weight": @"fc3.weight",
+    @"dense1.bias": @"fc1.bias",
+    @"dense2.bias": @"fc2.bias",
+    @"dense3.bias": @"fc3.bias"};
 }
 
-+ (bool)_checkWeights:(std::unordered_map<std::string, mat::MTensor>)weights
-     withExpectedInfo:(NSDictionary<NSString *, NSArray *> *)weightsInfoDict {
++ (NSDictionary<NSString *, NSArray *> *)getMTMLWeightsInfo
+{
+  return @{
+    @"embed.weight" : @[@(256), @(32)],
+    @"convs.0.weight" : @[@(32), @(32), @(3)],
+    @"convs.0.bias" : @[@(32)],
+    @"convs.1.weight" : @[@(64), @(32), @(3)],
+    @"convs.1.bias" : @[@(64)],
+    @"convs.2.weight" : @[@(64), @(64), @(3)],
+    @"convs.2.bias" : @[@(64)],
+    @"fc1.weight": @[@(128), @(190)],
+    @"fc1.bias": @[@(128)],
+    @"fc2.weight": @[@(64), @(128)],
+    @"fc2.bias": @[@(64)],
+    @"integrity_detect.weight": @[@(3), @(64)],
+    @"integrity_detect.bias": @[@(3)],
+    @"app_event_pred.weight": @[@(5), @(64)],
+    @"app_event_pred.bias": @[@(5)]};
+}
+
++ (bool)checkWeights:(std::unordered_map<std::string, fbsdk::MTensor>)weights
+    withExpectedInfo:(NSDictionary<NSString *, NSArray *> *)weightsInfoDict
+{
   if (weightsInfoDict.count != weights.size()) {
     return false;
   }
@@ -125,8 +148,8 @@ NS_ASSUME_NONNULL_BEGIN
       if (weights.count(std::string([key UTF8String])) == 0) {
         return false;
       }
-      mat::MTensor tensor = weights[std::string([key UTF8String])];
-      const std::vector<int64_t>& actualSize = tensor.sizes();
+      fbsdk::MTensor tensor = weights[std::string([key UTF8String])];
+      const std::vector<int>& actualSize = tensor.sizes();
       NSArray *expectedSize = weightsInfoDict[key];
       if (actualSize.size() != expectedSize.count) {
         return false;

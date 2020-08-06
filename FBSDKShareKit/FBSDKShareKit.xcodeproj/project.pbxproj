@@ -406,6 +406,7 @@
 		F487DC7C231EC4CC008416A9 /* FBSDKShareButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 895D8FE31A5F44E9006B16EF /* FBSDKShareButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F487DC80231EC4CC008416A9 /* FBSDKLikeDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 89D05A761A9FE4CB00609300 /* FBSDKLikeDialog.h */; };
 		F487DC81231EC4CC008416A9 /* FBSDKGameRequestContent.h in Headers */ = {isa = PBXBuildFile; fileRef = 89F2037E1AA922DB0053499E /* FBSDKGameRequestContent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4D7A84724520A6700A12EE5 /* FakeSharingDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D7A84624520A6700A12EE5 /* FakeSharingDelegate.m */; };
 		F4E7517223EA18C20061BBFC /* FBSDKMessageDialogTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E7516823EA18C10061BBFC /* FBSDKMessageDialogTests.m */; };
 		F4E7517D23EA19010061BBFC /* FBSDKSendButton.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E7517423EA19000061BBFC /* FBSDKSendButton.m */; };
 		F4E7517E23EA19010061BBFC /* FBSDKSendButton.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E7517423EA19000061BBFC /* FBSDKSendButton.m */; };
@@ -725,6 +726,8 @@
 		F4430BAD2322AF65004C3925 /* Enums+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Enums+Extensions.swift"; path = "Swift/Enums+Extensions.swift"; sourceTree = "<group>"; };
 		F483F4CA233AC91700703DE3 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBSDKShareKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F487DC86231EC4CC008416A9 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBSDKShareKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4D7A84524520A6700A12EE5 /* FakeSharingDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FakeSharingDelegate.h; sourceTree = "<group>"; };
+		F4D7A84624520A6700A12EE5 /* FakeSharingDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FakeSharingDelegate.m; sourceTree = "<group>"; };
 		F4E7516823EA18C10061BBFC /* FBSDKMessageDialogTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBSDKMessageDialogTests.m; sourceTree = "<group>"; };
 		F4E7517323EA19000061BBFC /* FBSDKMessageDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBSDKMessageDialog.h; sourceTree = "<group>"; };
 		F4E7517423EA19000061BBFC /* FBSDKSendButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBSDKSendButton.m; sourceTree = "<group>"; };
@@ -1082,6 +1085,8 @@
 		9D46C5FF1A11E5D800A0DDB6 /* FBSDKShareKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				F4D7A84524520A6700A12EE5 /* FakeSharingDelegate.h */,
+				F4D7A84624520A6700A12EE5 /* FakeSharingDelegate.m */,
 				F4E7516823EA18C10061BBFC /* FBSDKMessageDialogTests.m */,
 				89FC8C431AC99B8A004187B2 /* FBSDKShareDialogTests.m */,
 				896A52A11B795AAB00E3A6AB /* FBSDKShareKitTestUtility.h */,
@@ -1514,7 +1519,7 @@
 		9D46C5E71A11E5D800A0DDB6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1140;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					9D2D99931BC452DE00929E76 = {
@@ -1539,11 +1544,11 @@
 			};
 			buildConfigurationList = 9D46C5EA1A11E5D800A0DDB6 /* Build configuration list for PBXProject "FBSDKShareKit" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
+				Base,
 			);
 			mainGroup = 9D46C5E61A11E5D800A0DDB6;
 			productRefGroup = 9D46C5F11A11E5D800A0DDB6 /* Products */;
@@ -1904,6 +1909,7 @@
 				896DE2251A9E33CC00195731 /* FBSDKShareVideoTests.m in Sources */,
 				F4E7517223EA18C20061BBFC /* FBSDKMessageDialogTests.m in Sources */,
 				EAC370A31AAE3A9C000F0F04 /* FBSDKGameRequestContentTests.m in Sources */,
+				F4D7A84724520A6700A12EE5 /* FakeSharingDelegate.m in Sources */,
 				896B8C851A7967290074220D /* FBSDKShareUtilityTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2104,17 +2110,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 819043D31D261A7900B2E437 /* Debug.xcconfig */;
 			buildSettings = {
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 			};
 			name = Debug;
 		};
@@ -2133,6 +2128,7 @@
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
 		};

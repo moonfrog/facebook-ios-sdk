@@ -18,12 +18,17 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FBSDKMOdelConstants.h"
 #import "FBSDKModelParser.h"
-using mat::MTensor;
+using fbsdk::MTensor;
 using std::string;
 using std::unordered_map;
 using std::vector;
+
+@interface FBSDKModelParser ()
+
++ (NSDictionary<NSString *, NSArray *> *)getMTMLWeightsInfo;
+
+@end
 
 @interface FBSDKModelParserTests : XCTestCase
 {
@@ -41,84 +46,31 @@ using std::vector;
   [_mockWeightsInfoDict removeAllObjects];
 }
 
-- (void)testValidWeightsForAddressDetect {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  [_mockWeightsInfoDict addEntriesFromDictionary:AddressDetectSpec];
+- (void)testValidWeightsForMTML {
+  [_mockWeightsInfoDict addEntriesFromDictionary:[FBSDKModelParser getMTMLWeightsInfo]];
 
   bool validatedRes = [FBSDKModelParser validateWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]
-                                                forTask:FBSDKMTMLTaskAddressDetect];
+                                                 forKey:@"MTML"];
 
   XCTAssertTrue(validatedRes);
 }
 
-- (void)testWeightsForAddressDetectWithMissingInfo {
-  [_mockWeightsInfoDict addEntriesFromDictionary:AddressDetectSpec];
+- (void)testWeightsForMissingInfo {
+  [_mockWeightsInfoDict removeAllObjects];
 
   bool validatedRes = [FBSDKModelParser validateWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]
-                                                forTask:FBSDKMTMLTaskAddressDetect];
+                                                 forKey:@"MTML"];
 
   XCTAssertFalse(validatedRes);
 }
 
-- (void)testWeightsForAddressDetectWithWrongInfo {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  [_mockWeightsInfoDict addEntriesFromDictionary:AppEventPredSpec];
+- (void)testWeightsForWrongInfo {
+  [_mockWeightsInfoDict addEntriesFromDictionary:[FBSDKModelParser getMTMLWeightsInfo]];
+  [_mockWeightsInfoDict addEntriesFromDictionary:@{@"embed.weight" : @[@(1), @(1)]}];
 
   bool validatedRes = [FBSDKModelParser validateWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]
-                                                forTask:FBSDKMTMLTaskAddressDetect];
+                                                 forKey:@"MTML"];
 
-  XCTAssertFalse(validatedRes);
-}
-
-- (void)testValidWeightsForAppEventPred {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  [_mockWeightsInfoDict addEntriesFromDictionary:AppEventPredSpec];
-
-  bool validatedRes = [FBSDKModelParser validateWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]
-                                                forTask:FBSDKMTMLTaskAppEventPred];
-
-  XCTAssertTrue(validatedRes);
-}
-
-- (void)testWeightsForAppEventPredWithMissingInfo {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-
-  bool validatedRes = [FBSDKModelParser validateWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]
-                                                forTask:FBSDKMTMLTaskAppEventPred];
-
-  XCTAssertFalse(validatedRes);
-}
-
-- (void)testWeightsForAppEventPredWithWrongInfo {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  [_mockWeightsInfoDict addEntriesFromDictionary:MTMLSpec];
-
-  bool validatedRes = [FBSDKModelParser validateWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]
-                                                forTask:FBSDKMTMLTaskAppEventPred];
-
-  XCTAssertFalse(validatedRes);
-}
-
-- (void)testValidMTMLWeights {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  [_mockWeightsInfoDict addEntriesFromDictionary:MTMLSpec];
-
-  bool validatedRes = [FBSDKModelParser validateMTMLWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]];
-  XCTAssertTrue(validatedRes);
-}
-
-- (void)testMTMLWeightsWithMissingInfo {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-  [_mockWeightsInfoDict addEntriesFromDictionary:AppEventPredSpec];
-
-  bool validatedRes = [FBSDKModelParser validateMTMLWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]];
-  XCTAssertFalse(validatedRes);
-}
-
-- (void)testMTMLWeightsWithWrongInfo {
-  [_mockWeightsInfoDict addEntriesFromDictionary:SharedWeightsInfo];
-
-  bool validatedRes = [FBSDKModelParser validateMTMLWeights:[self _mockWeightsWithRefDict:_mockWeightsInfoDict]];
   XCTAssertFalse(validatedRes);
 }
 
@@ -126,11 +78,11 @@ using std::vector;
   unordered_map<string,  MTensor> weights;
   for (NSString* key in dict) {
     NSArray<NSNumber *> *values = dict[key];
-    vector<int64_t> shape;
+    vector<int> shape;
     for (NSNumber *val in values) {
       shape.push_back(val.intValue);
     }
-    MTensor tensor = mat::mempty(shape);
+    MTensor tensor(shape);
     weights[string([key UTF8String])] = tensor;
   }
 

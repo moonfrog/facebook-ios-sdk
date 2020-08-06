@@ -7,7 +7,88 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
-[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.0.0...HEAD)
+### Important
+
+v7.0 will drop support for Xcode versions below 11. This is in line with [Apple's plans](https://developer.apple.com/news/?id=03262020b) to disallow submission of Apps that do not include the iOS 13 SDK.
+This means that from v7.0 on, all SDK kits will be built using Xcode 11 and Swift 5.1.
+
+[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.5.2...HEAD)
+
+## 6.5.2
+
+- Various bug fixes
+
+[2020-04-29](https://github.com/facebook/facebook-ios-sdk/releases/tag/v6.5.2) |
+[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.5.1...v6.5.2)
+
+## 6.5.1
+
+## Fixed
+
+- The Swift interface for SharingDelegate should not have a nullable error in the callback.
+- Fixes issue with login callback during backgrounding.
+- Minor fixes related to Integrity
+
+[2020-04-23](https://github.com/facebook/facebook-ios-sdk/releases/tag/v6.5.1) |
+[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.5.0...v6.5.1)
+
+## 6.5.0
+
+## Added
+
+- More usecase for Integrity is supported.
+
+[2020-04-20](https://github.com/facebook/facebook-ios-sdk/releases/tag/v6.5.0) |
+[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.4.0...v6.5.0)
+
+## 6.4.0
+
+## Added
+
+FBSDKMessageDialog now accepts FBSDKSharePhotoContent.
+
+FBSDKGamingServicesKit/FBSDKGamingImageUploader.h
+`uploadImageWithConfiguration:andResultCompletionHandler:`
+`uploadImageWithConfiguration:completionHandler:andProgressHandler:`
+
+FBSDKGamingServicesKit/FBSDKGamingVideoUploader.h
+`uploadVideoWithConfiguration:andResultCompletionHandler:`
+`uploadVideoWithConfiguration:completionHandler:andProgressHandler:`
+
+## Deprecated
+
+FBSDKGamingServicesKit/FBSDKGamingImageUploader.h
+`uploadImageWithConfiguration:andCompletionHandler:`
+
+FBSDKGamingServicesKit/FBSDKGamingVideoUploader.h
+`uploadVideoWithConfiguration:andCompletionHandler:`
+
+[2020-03-25](https://github.com/facebook/facebook-ios-sdk/releases/tag/v6.4.0) |
+[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.3.0...v6.4.0)
+
+## Changed
+
+Various bug fixes, CI improvements
+
+## 6.3.0
+
+## Added
+
+- Support new event type for suggested events
+
+[2020-03-25](https://github.com/facebook/facebook-ios-sdk/releases/tag/v6.3.0) |
+[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.2.0...v6.3.0)
+
+## 6.2.0
+
+## Added
+
+- Support for Gaming Video Uploads
+- Allow Gaming Image Uploader to accept a callback
+- [Messenger Sharing](https://developers.facebook.com/docs/messenger-platform/changelog/#20200304)
+
+[2020-03-09](https://github.com/facebook/facebook-ios-sdk/releases/tag/v6.2.0) |
+[Full Changelog](https://github.com/facebook/facebook-ios-sdk/compare/v6.0.0...v6.2.0)
 
 ## 6.0.0
 

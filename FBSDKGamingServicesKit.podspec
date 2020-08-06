@@ -3,7 +3,7 @@
 Pod::Spec.new do |s|
 
   s.name         = 'FBSDKGamingServicesKit'
-  s.version      = '6.0.0'
+  s.version      = '6.5.2'
   s.summary      = 'Official Facebook SDK for iOS to access Facebook Gaming Services'
 
   s.description  = <<-DESC
@@ -29,6 +29,6 @@ Pod::Spec.new do |s|
 
   s.source_files   = 'FBSDKGamingServicesKit/FBSDKGamingServicesKit/**/*.{h,m}'
   s.public_header_files = 'FBSDKGamingServicesKit/FBSDKGamingServicesKit/*.{h}'
-  s.dependency 'FBSDKCoreKit', "~> #{s.version}"
+  s.dependency 'FBSDKShareKit', "~> #{s.version}"
 
 end

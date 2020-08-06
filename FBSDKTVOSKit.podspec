@@ -3,7 +3,7 @@
 Pod::Spec.new do |s|
 
   s.name         = 'FBSDKTVOSKit'
-  s.version      = '6.0.0'
+  s.version      = '6.5.2'
   s.summary      = 'Official Facebook SDK for tvOS to access Facebook Platform with features like Login and Graph API.'
 
   s.description  = <<-DESC
@@ -28,7 +28,6 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) FBSDKCOCOAPODS=1' }
 
   s.dependency 'FBSDKCoreKit', "~> #{s.version}"
-  # We have a compile time depend on FBSDKShareKit
   s.dependency 'FBSDKShareKit', "~> #{s.version}"
   s.dependency 'FBSDKLoginKit', "~> #{s.version}"
 end

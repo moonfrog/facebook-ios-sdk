@@ -89,22 +89,3 @@ See the [SECURITY POLICY](SECURITY.md) for more info on our bug bounty program.
   Advertising Guidelines, as applicable <https://www.facebook.com/ad_guidelines.php>.
 
 By using the Facebook SDK for iOS you agree to these terms.
-
-## Additional Edit by Amit
-
-## Follow the steps mentioned below for building FB SDK for TPG
-The code changes are only in FBSDKLoginKit. But to make the sdk following 3 SDKs are needed for TPG:
-1. FBSDKCoreKit
-2. FBSDKLoginKit
-3. FBSDKShareKit
-
-1. To build the SDK open each top level project in XCode(by double clicking on FBSDK<resp>Kit.xcodeproj file) one by one(don't open all at once) and choose the scheme as FBSDK<resp>Kit-Universal from the list of schemes. 
-2. Choose target device as **Generic iOS Device**.
-3. Clean(cmd+shift+k) and select Archive from Product menu bar.
-4. After the build is completed go to the this location to get the framework
-   Macintosh HD⁩ ▸ ⁨Users⁩ ▸ ⁨<username>⁩ ▸ ⁨Library⁩ ▸ ⁨Developer⁩ ▸ ⁨Xcode⁩ ▸ ⁨DerivedData⁩ ▸ ⁨FBSDK<resp>Kit-<some-random-string>⁩ ▸ ⁨Build⁩    ▸ ⁨Intermediates.noindex⁩ ▸ ⁨ArchiveIntermediates⁩ ▸ FBSDK<resp>Kit-Universal⁩ ▸ ⁨IntermediateBuildFilesPath⁩ ▸ UninstalledProducts⁩
-5. Copy the framework directory to proj.ios folder(frameworks are just like ordinary folders in Apple).
-6. Due to header search path issue(and I also didn't get time to fix it), I have commented out this line from all the header files in the all of the framework header folders: ``` #import "FBSDKCoreKitImport.h" ```. If you can fix it then just commit everything or else you also will have to comment this line in all the header files.
-7. These steps do not include how to add a static library framework from scratch. These steps are mentioned keeping in mind that the 3 FBSDK frameworks are already added to xcode and we have just need to upgrade them.
-
-Happy building...
