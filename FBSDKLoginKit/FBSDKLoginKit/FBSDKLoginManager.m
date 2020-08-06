@@ -458,8 +458,9 @@ typedef NS_ENUM(NSInteger, FBSDKLoginManagerState) {
 {
   [_logger willAttemptAppSwitchingBehavior];
 
-  FBSDKServerConfiguration *configuration = [FBSDKServerConfigurationManager cachedServerConfiguration];
-  BOOL useSafariViewController = [configuration useSafariViewControllerForDialogName:FBSDKDialogConfigurationNameLogin];
+  // This is the fix for issue during login. on iOS 13 user get stuck in safari browser. But this has got fixed in 7.0.1 version.
+  //FBSDKServerConfiguration *configuration = [FBSDKServerConfigurationManager cachedServerConfiguration];
+  BOOL useSafariViewController = false; //[configuration useSafariViewControllerForDialogName:FBSDKDialogConfigurationNameLogin];
   NSString *authMethod = (useSafariViewController ? FBSDKLoginManagerLoggerAuthMethod_SFVC : FBSDKLoginManagerLoggerAuthMethod_Browser);
 
   loginParams = [_logger parametersWithTimeStampAndClientState:loginParams forAuthMethod:authMethod];

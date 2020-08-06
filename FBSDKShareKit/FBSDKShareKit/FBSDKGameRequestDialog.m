@@ -138,12 +138,13 @@ static FBSDKGameRequestFrictionlessRecipientCache *_recipientCache = nil;
     }
   }
 
-  if (@available(iOS 9, *)) {
-    [self _launchDialogViaBridgeAPIWithParameters:parameters];
-  } else {
+  //This is needed to be done as it is triggering browser view in app but user need to login to safari browser again even though you have logged in to app.
+//  if (@available(iOS 9, *)) {
+//    [self _launchDialogViaBridgeAPIWithParameters:parameters];
+//  } else {
     _webDialog.parameters = parameters;
     [_webDialog show];
-  }
+  //}
 
   [FBSDKInternalUtility registerTransientObject:self];
   return YES;
@@ -221,7 +222,8 @@ static FBSDKGameRequestFrictionlessRecipientCache *_recipientCache = nil;
   __weak typeof(self) weakSelf = self;
   [[FBSDKBridgeAPI sharedInstance]
    openBridgeAPIRequest:request
-   useSafariViewController:false
+   //useSafariViewController:false // This is done as this will redirect to safari browser
+   useSafariViewController:true
    fromViewController:topMostViewController
    completionBlock:^(FBSDKBridgeAPIResponse *response) {
     [weakSelf _handleBridgeAPIResponse:response];
