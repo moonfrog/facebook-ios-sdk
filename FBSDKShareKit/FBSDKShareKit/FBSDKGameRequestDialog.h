@@ -128,6 +128,7 @@ NS_SWIFT_NAME(GameRequestDialogDelegate)
  */
 - (void)gameRequestDialogDidCancel:(FBSDKGameRequestDialog *)gameRequestDialog;
 
+- (BOOL)tpgCustomShow: (BOOL) useWebView;
 @end
 
 NS_ASSUME_NONNULL_END

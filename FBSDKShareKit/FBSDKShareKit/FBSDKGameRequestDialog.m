@@ -92,7 +92,7 @@ static FBSDKGameRequestFrictionlessRecipientCache *_recipientCache = nil;
   return YES;
 }
 
-- (BOOL)show
+- (BOOL)tpgCustomShow: (BOOL) useWebView
 {
   NSError *error;
   if (!self.canShow) {
@@ -139,12 +139,73 @@ static FBSDKGameRequestFrictionlessRecipientCache *_recipientCache = nil;
   }
 
   //This is needed to be done as it is triggering browser view in app but user need to login to safari browser again even though you have logged in to app.
-//  if (@available(iOS 9, *)) {
-//    [self _launchDialogViaBridgeAPIWithParameters:parameters];
-//  } else {
+  if(!useWebView) {
+    if (@available(iOS 9, *)) {
+      [self _launchDialogViaBridgeAPIWithParameters:parameters];
+      [FBSDKInternalUtility registerTransientObject:self];
+      return YES;
+    }
+  }
+  _webDialog.parameters = parameters;
+  [_webDialog show];
+  [FBSDKInternalUtility registerTransientObject:self];
+  return YES;
+}
+
+
+- (BOOL)show
+{
+  NSError *error;
+  if (!self.canShow) {
+    error = [FBSDKError errorWithDomain:FBSDKShareErrorDomain
+                                   code:FBSDKShareErrorDialogNotAvailable
+                                message:@"Game request dialog is not available."];
+    [_delegate gameRequestDialog:self didFailWithError:error];
+    return NO;
+  }
+  if (![self validateWithError:&error]) {
+    [_delegate gameRequestDialog:self didFailWithError:error];
+    return NO;
+  }
+
+  FBSDKGameRequestContent *content = self.content;
+
+  if (error) {
+    return NO;
+  }
+
+  NSMutableDictionary *parameters = [[NSMutableDictionary alloc] init];
+  [FBSDKBasicUtility dictionary:parameters setObject:[content.recipients componentsJoinedByString:@","] forKey:@"to"];
+  [FBSDKBasicUtility dictionary:parameters setObject:content.message forKey:@"message"];
+  [FBSDKBasicUtility dictionary:parameters setObject:[self _actionTypeNameForActionType:content.actionType] forKey:@"action_type"];
+  [FBSDKBasicUtility dictionary:parameters setObject:content.objectID forKey:@"object_id"];
+  [FBSDKBasicUtility dictionary:parameters setObject:[self _filtersNameForFilters:content.filters] forKey:@"filters"];
+  [FBSDKBasicUtility dictionary:parameters setObject:[content.recipientSuggestions componentsJoinedByString:@","] forKey:@"suggestions"];
+  [FBSDKBasicUtility dictionary:parameters setObject:content.data forKey:@"data"];
+  [FBSDKBasicUtility dictionary:parameters setObject:content.title forKey:@"title"];
+
+  // check if we are sending to a specific set of recipients.  if we are and they are all frictionless recipients, we
+  // can perform this action without displaying the web dialog
+  _webDialog.deferVisibility = NO;
+  NSArray *recipients = content.recipients;
+  if (_frictionlessRequestsEnabled && recipients) {
+    // specify these parameters to get the frictionless recipients from the dialog when it is presented
+    parameters[@"frictionless"] = @YES;
+    parameters[@"get_frictionless_recipients"] = @YES;
+
+    _dialogIsFrictionless = YES;
+    if ([_recipientCache recipientsAreFrictionless:recipients]) {
+      _webDialog.deferVisibility = YES;
+    }
+  }
+
+
+  if (@available(iOS 9, *)) {
+    [self _launchDialogViaBridgeAPIWithParameters:parameters];
+  } else {
     _webDialog.parameters = parameters;
     [_webDialog show];
-  //}
+  }
 
   [FBSDKInternalUtility registerTransientObject:self];
   return YES;
