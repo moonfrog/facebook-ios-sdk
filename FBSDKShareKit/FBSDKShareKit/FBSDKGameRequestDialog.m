@@ -283,8 +283,7 @@ static FBSDKGameRequestFrictionlessRecipientCache *_recipientCache = nil;
   __weak typeof(self) weakSelf = self;
   [[FBSDKBridgeAPI sharedInstance]
    openBridgeAPIRequest:request
-   //useSafariViewController:false // This is done as this will redirect to safari browser
-   useSafariViewController:true
+   useSafariViewController:false
    fromViewController:topMostViewController
    completionBlock:^(FBSDKBridgeAPIResponse *response) {
     [weakSelf _handleBridgeAPIResponse:response];
